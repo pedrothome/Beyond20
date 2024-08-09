@@ -1441,9 +1441,10 @@ function handleSpecialHealingSpells(spell_name, damages=[], damage_types=[], {sp
 async function rollSpell(force_display = false, force_to_hit_only = false, force_damages_only = false) {
     const properties = propertyListToDict($(".ct-spell-pane .ct-spell-detail [role=list] > div"));
     //console.log("Properties are : " + String(properties));
-    const spell_source = $(".ct-sidebar__header-parent").text() || $(".ct-sidebar__header > div").text();
-    const spell_full_name = $(".ct-sidebar__heading .ct-spell-name,.ct-sidebar__heading .ddbc-spell-name, .ct-sidebar__heading span[class*='styles_spellName']").text();
-    const spell_name = $(".ct-sidebar__heading .ct-spell-name,.ct-sidebar__heading .ddbc-spell-name, .ct-sidebar__heading span[class*='styles_spellName']")[0].firstChild.textContent;
+    const spell_source = $(".ct-sidebar__header-parent").text() || $(".ct-sidebar__header > div:first-child").text();
+    const spell_n = $(".ct-sidebar__heading .ct-spell-name,.ct-sidebar__heading .ddbc-spell-name, .ct-sidebar__heading span[class*='styles_spellName']")
+    const spell_full_name = spell_n.text();
+    const spell_name = spell_n[0].firstChild.textContent;
     const description = descriptionToString(".ct-spell-pane .ct-spell-detail__description");
     const damage_modifiers = $(".ct-spell-pane .ct-spell-caster__modifiers--damages .ct-spell-caster__modifier--damage");
     const healing_modifiers = $(".ct-spell-pane .ct-spell-caster__modifiers--healing .ct-spell-caster__modifier--hp");
@@ -1475,6 +1476,25 @@ async function rollSpell(force_display = false, force_to_hit_only = false, force
 
     if (key_modifiers["display_attack"]) {
         force_display = true;
+    }
+    let extra_details = {
+        "properties": properties,
+        "spell_source": spell_source,
+        "spell_full_name": spell_full_name,
+        "spell_name": spell_name,
+        "description": description,
+        "damage_modifiers": damage_modifiers,
+        "healing_modifiers": healing_modifiers,
+        "temp_hp_modifiers": temp_hp_modifiers,
+        "castas": castas,
+        "level": level,
+        "ritual": ritual,
+        "concentration": concentration,
+        "duration": duration,
+        "range_shape": range_shape,
+        "aoe_class": aoe_class,
+        "aoe_shape": aoe_shape,
+        "to_hit": to_hit,
     }
     if (!force_display && (damage_modifiers.length > 0 || healing_modifiers.length > 0 || temp_hp_modifiers.length > 0 || to_hit !== null || properties["Attack/Save"] !== undefined)) {
         const damages = [];
@@ -1594,6 +1614,7 @@ async function rollSpell(force_display = false, force_to_hit_only = false, force
         // Apply batched updates to settings, if any:
         if (Object.keys(settings_to_change).length > 0)
             character.mergeCharacterSettings(settings_to_change);
+        roll_properties["extra_details"] = extra_details;
         return sendRollWithCharacter("spell-attack", damages[0] || "", roll_properties);
     } else {
         const roll_properties = {
@@ -1616,6 +1637,7 @@ async function rollSpell(force_display = false, force_to_hit_only = false, force
         }
         if (castas != "" && !level.startsWith(castas))
             roll_properties["cast-at"] = castas;
+        roll_properties["extra_details"] = extra_details;
         return sendRollWithCharacter("spell-card", 0, roll_properties);
     }
 }

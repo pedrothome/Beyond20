@@ -537,6 +537,11 @@ class Beyond20RollRenderer {
         const damage_rolls = [];
         const all_rolls = [];
         let is_critical = false;
+        let cast_from_wizard_list = request["extra_details"]["spell_source"].includes("Wizard");
+        // Wizard: Awakened Spellbook
+        let awakened_spellbook = (
+            request.character["class-features"].indexOf("Awakened Spellbook") > 0
+        )
         if (request.rollAttack && request["to-hit"] !== undefined) {
             const custom = custom_roll_dice == "" ? "" : (" + " + custom_roll_dice);
             const to_hit_mod = " + " + request["to-hit"] + custom;
@@ -610,7 +615,40 @@ class Beyond20RollRenderer {
                         break;
                     }
                 }
+            } else if (request.name.includes("Wrath of the Storm")) {
+                //console.log(request.name, damage_rolls)
+                for (let [i, dmg_roll] of damage_rolls.entries()) {
+                    const [dmg_type, roll, flags] = dmg_roll;
+                    if (roll.dice[0].faces == 8) {
+                        const damage_choices = {"Lightning": null, "Thunder": null}
+                        let chaotic_type = null;
+                        chaotic_type = await this.queryDamageType(request.name, damage_choices, "wrath-of-the-storm");
+                        if (chaotic_type === null) {
+                            // Query was cancelled
+                            chaotic_type = Object.keys(damage_choices)[0];
+                        }
+                        damage_rolls[i] = [chaotic_type + " Damage", roll, flags];
+                        critical_damage_types[0] = chaotic_type;
+                        critical_damage_types[1] = chaotic_type;
+                        break;
+                    }
+                }
             }
+            /*
+            if (request["attack-source"] == "spell" && cast_from_wizard_list && awakened_spellbook) {
+                let deals_damage = false
+                for (let [i, dmg_roll] of damage_rolls.entries()) {
+                    const [dmg_type, roll, flags] = dmg_roll;
+                    if (flags == DAMAGE_FLAGS.REGULAR) {
+                        deals_damage = true;
+                        break;
+                    }
+                }
+                if (deals_damage) {
+                    damage_rolls.push(["You can replace the damage type with a type that appears in another spell in your spellbook", "", DAMAGE_FLAGS.MESSAGE]);
+                }
+            }
+            */
 
             // If rolling the attack, check for critical hit, otherwise, use argument.
             if (request.rollAttack && to_hit.length > 0) {

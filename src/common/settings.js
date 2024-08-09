@@ -575,6 +575,12 @@ const character_settings = {
         "type": "bool",
         "default": false
     },
+    "wizard-awakened-spellbook": {
+        "title": "Wizard: Awakened Spellbook",
+        "description": "When you cast a wizard spell with a spell slot, you can temporarily replace its damage type with a type that appears in another spell in your spellbook",
+        "type": "bool",
+        "default": true
+    },
     "wildfire-spirit-enhanced-bond": {
         "title": "Druid: Circle of Wildfire: Enhanced Bond",
         "description": "The bond with your wildfire spirit enhances your destructive and restorative spells.",
