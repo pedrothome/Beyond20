@@ -537,11 +537,6 @@ class Beyond20RollRenderer {
         const damage_rolls = [];
         const all_rolls = [];
         let is_critical = false;
-        let cast_from_wizard_list = request["extra_details"]["spell_source"].includes("Wizard");
-        // Wizard: Awakened Spellbook
-        let awakened_spellbook = (
-            request.character["class-features"].indexOf("Awakened Spellbook") > 0
-        )
         if (request.rollAttack && request["to-hit"] !== undefined) {
             const custom = custom_roll_dice == "" ? "" : (" + " + custom_roll_dice);
             const to_hit_mod = " + " + request["to-hit"] + custom;
@@ -635,17 +630,24 @@ class Beyond20RollRenderer {
                 }
             }
             /*
-            if (request["attack-source"] == "spell" && cast_from_wizard_list && awakened_spellbook) {
-                let deals_damage = false
-                for (let [i, dmg_roll] of damage_rolls.entries()) {
-                    const [dmg_type, roll, flags] = dmg_roll;
-                    if (flags == DAMAGE_FLAGS.REGULAR) {
-                        deals_damage = true;
-                        break;
+            if (request["attack-source"] == "spell"){
+                let cast_from_wizard_list = request["extra_details"]["spell_source"].includes("Wizard");
+                // Wizard: Awakened Spellbook
+                let awakened_spellbook = (
+                    request.character["class-features"].indexOf("Awakened Spellbook") > 0
+                )
+                if (cast_from_wizard_list && awakened_spellbook) {
+                    let deals_damage = false
+                    for (let [i, dmg_roll] of damage_rolls.entries()) {
+                        const [dmg_type, roll, flags] = dmg_roll;
+                        if (flags == DAMAGE_FLAGS.REGULAR) {
+                            deals_damage = true;
+                            break;
+                        }
                     }
-                }
-                if (deals_damage) {
-                    damage_rolls.push(["You can replace the damage type with a type that appears in another spell in your spellbook", "", DAMAGE_FLAGS.MESSAGE]);
+                    if (deals_damage) {
+                        damage_rolls.push(["You can replace the damage type with a type that appears in another spell in your spellbook", "", DAMAGE_FLAGS.MESSAGE]);
+                    }
                 }
             }
             */
