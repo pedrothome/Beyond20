@@ -798,6 +798,25 @@ class Beyond20RollRenderer {
 
         const [attack_rolls, damage_rolls] = await this.buildAttackRolls(request, custom_roll_dice);
 
+        let cast_from_wizard_list = request["extra_details"]["spell_source"].includes("Wizard");
+        // Wizard: Awakened Spellbook
+        let awakened_spellbook = (
+            request.character["class-features"].indexOf("Awakened Spellbook") > 0
+        )
+        if (cast_from_wizard_list && awakened_spellbook) {
+            let deals_damage = false
+            for (let [i, dmg_roll] of damage_rolls.entries()) {
+                const [dmg_type, roll, flags] = dmg_roll;
+                if (flags == DAMAGE_FLAGS.REGULAR) {
+                    deals_damage = true;
+                    break;
+                }
+            }
+            if (deals_damage) {
+                roll_info.push(["Awakened Spellbook", "You can replace the damage type with a type that appears in another spell in your spellbook"]);
+            }
+        }
+
         return this.postDescription(request, request.name, source, data, description, attack_rolls, roll_info, damage_rolls);
 
     }
